@@ -4,7 +4,7 @@
 
 ### Get Started
 
-> **NOTE:** Newer Macs that use ARM64 architecture (M1, M2, etc) have not been extensively tested.
+> **NOTE:** Newer MacBooks that use ARM64 architecture (M1, M2, etc) have not been extensively tested.
 
 **Windows:**
 
