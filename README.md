@@ -28,7 +28,7 @@
 
 - Exit the container and follow the README [here](https://github.com/byu-holoocean/holoocean-ros/tree/main/docker/runtime) to set up Holoocean-ROS. When prompted to run `./build_container.sh`, specify the branch 'nelson/fgo-dev' using `./build_container.sh -b nelson/fgo-dev`.
 
-- When finished, launch HoloOcean outside of the container using `bash holoocean_launch.sh`. Open a new WSL2 terminal, enter the container using `bash compose.sh`, and run `cd ~/coug_ws && colcon build` followed by `cd ~/scripts && bash dev_launch.sh` to launch the localization nodes and development tools.
+- When finished, launch HoloOcean outside of the container using `bash holoocean_launch.sh`. Open a new terminal, enter the container using `bash compose.sh`, and run `cd ~/coug_ws && colcon build` followed by `cd ~/scripts && bash dev_launch.sh` to launch the localization nodes and development tools.
 
 --
 
