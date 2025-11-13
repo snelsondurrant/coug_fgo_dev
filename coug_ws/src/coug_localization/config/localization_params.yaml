@@ -1,0 +1,198 @@
+ekf_filter_node_odom:
+  # This EKF fuses high-rate, continuous sensor data (IMU and DVL) to produce a smooth but 
+  # inevitably drifting state estimate. It is responsible for the odom -> base_link transform.
+  ros__parameters:
+    frequency: 30.0
+    two_d_mode: false
+    publish_tf: false
+
+    map_frame: map
+    odom_frame: odom
+    base_link_frame: base_link
+    world_frame: odom
+
+    # Input 0: Velocity from the Waterlinked DVL.
+    twist0: dvl/data
+    twist0_config: [false, false, false, # X, Y, Z
+                    false, false, false, # Roll, Pitch, Yaw
+                    true,  true,  true,  # Vx, Vy, Vz
+                    false, false, false, # Vroll, Vpitch, Vyaw
+                    false, false, false] # Ax, Ay, Az
+    twist0_queue_size: 5
+
+    # Input 1: Main IMU for angular velocity and linear acceleration.
+    imu0: imu/data
+    imu0_config: [false, false, false, # X, Y, Z
+                  false, false, false, # Roll, Pitch, Yaw
+                  false, false, false, # Vx, Vy, Vz
+                  true,  true,  true,  # Vroll, Vpitch, Vyaw
+                  true,  true,  true]  # Ax, Ay, Az
+    imu0_differential: false # This is ignored when using the IMU as a velocity source.
+    imu0_relative: true
+    imu0_queue_size: 10
+    imu0_remove_gravitational_acceleration: true
+
+    use_control: false
+
+ekf_filter_node_map:
+  # This EKF fuses the output of the first EKF with absolute positioning sensors
+  # (GPS, Depth, Heading) to produce a globally correct, non-drifting state 
+  # estimate in the 'map' frame. It is responsible for the map -> odom transform.
+  ros__parameters:
+    frequency: 20.0
+    two_d_mode: false
+    publish_tf: false # Published by GTSAM instead
+
+    map_frame: map
+    odom_frame: odom
+    base_link_frame: base_link
+    world_frame: map
+
+    # NOTE: The following process_noise_covariance is derived from the coug_fgo
+    # configuration to enable a more direct comparison between the filter and the factor graph.
+    process_noise_covariance: [
+      # X, Y, Z
+      1e-6, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,    0.0,    0.0,    0.0,     0.0,     0.0,     0.0,   0.0,   0.0,
+      0.0,  1e-6, 0.0,  0.0,  0.0,  0.0,  0.0,    0.0,    0.0,    0.0,     0.0,     0.0,     0.0,   0.0,   0.0,
+      0.0,  0.0,  1e-6, 0.0,  0.0,  0.0,  0.0,    0.0,    0.0,    0.0,     0.0,     0.0,     0.0,   0.0,   0.0,
+      # Roll, Pitch, Yaw
+      0.0,  0.0,  0.0,  1e-6, 0.0,  0.0,  0.0,    0.0,    0.0,    0.0,     0.0,     0.0,     0.0,   0.0,   0.0,
+      0.0,  0.0,  0.0,  0.0,  1e-6, 0.0,  0.0,    0.0,    0.0,    0.0,     0.0,     0.0,     0.0,   0.0,   0.0,
+      0.0,  0.0,  0.0,  0.0,  0.0,  1e-6, 0.0,    0.0,    0.0,    0.0,     0.0,     0.0,     0.0,   0.0,   0.0,
+      # Vx, Vy, Vz
+      0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  1e-3,   0.0,    0.0,    0.0,     0.0,     0.0,     0.0,   0.0,   0.0,
+      0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,    1e-3,   0.0,    0.0,     0.0,     0.0,     0.0,   0.0,   0.0,
+      0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,    0.0,    1e-3,   0.0,     0.0,     0.0,     0.0,   0.0,   0.0,
+      # Vroll, Vpitch, Vyaw (from gyro_noise_sigma^2)
+      0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,    0.0,    0.0,    0.0001,  0.0,     0.0,     0.0,   0.0,   0.0,
+      0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,    0.0,    0.0,    0.0,     0.0001,  0.0,     0.0,   0.0,   0.0,
+      0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,    0.0,    0.0,    0.0,     0.0,     0.0001,  0.0,   0.0,   0.0,
+      # Ax, Ay, Az (from accel_noise_sigma^2)
+      0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,    0.0,    0.0,    0.0,     0.0,     0.0,     0.01,  0.0,   0.0,
+      0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,    0.0,    0.0,    0.0,     0.0,     0.0,     0.0,   0.01,  0.0,
+      0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,    0.0,    0.0,    0.0,     0.0,     0.0,     0.0,   0.0,   0.01
+    ]
+
+    # Input 0: The output of the odom EKF.
+    odom0: odometry/local
+    odom0_config: [false, false, false, # X, Y, Z
+                   false, false, false, # Roll, Pitch, Yaw
+                   true,  true,  true,  # Vx, Vy, Vz
+                   true,  true,  true,  # Vroll, Vpitch, Vyaw
+                   false, false, false] # Ax, Ay, Az
+    odom0_queue_size: 10
+    odom0_differential: false # Irrelevant, fusing the velocity output of the first EKF.
+    odom0_relative: false
+
+    # Input 1: GPS data, converted to 'map' frame odometry by navsat_transform_node.
+    odom1: odometry/gps
+    odom1_config: [true,  true,  false, # X, Y, Z
+                   false, false, false, # Roll, Pitch, Yaw
+                   false, false, false, # Vx, Vy, Vz
+                   false, false, false, # Vroll, Vpitch, Vyaw
+                   false, false, false] # Ax, Ay, Az
+    odom1_queue_size: 2
+    odom1_differential: false
+    odom1_relative: false # Absolute GPS position in the map frame.
+
+    # Input 2: Depth sensor, providing absolute Z position (one of two?)
+    odom2: odometry/depth
+    odom2_config: [false, false, true,  # X, Y, Z
+                   false, false, false, # Roll, Pitch, Yaw
+                   false, false, false, # Vx, Vy, Vz
+                   false, false, false, # Vroll, Vpitch, Vyaw
+                   false, false, false] # Ax, Ay, Az
+    odom2_queue_size: 2
+    odom2_differential: false
+    odom2_relative: false # Absolute depth in the map frame.
+
+    # Input 3: Magnetometer heading sensor for absolute yaw.
+    imu0: imu/heading
+    imu0_config: [false, false, false, # X, Y, Z
+                  false, false, true,  # Roll, Pitch, Yaw
+                  false, false, false, # Vx, Vy, Vz
+                  false, false, false, # Vroll, Vpitch, Vyaw
+                  false, false, false] # Ax, Ay, Az
+    imu0_queue_size: 2
+    imu0_differential: false # It's an absolute heading source
+    imu0_relative: false # Absolute heading in the map frame.
+
+ukf_filter_node_map:
+  ros__parameters:
+    frequency: 20.0
+    two_d_mode: false
+    publish_tf: false # Published by GTSAM instead
+
+    map_frame: map
+    odom_frame: odom
+    base_link_frame: base_link
+    world_frame: map
+
+    # NOTE: The following process_noise_covariance is derived from the coug_fgo
+    # configuration to enable a more direct comparison between the filter and the factor graph.
+    process_noise_covariance: [
+      # X, Y, Z
+      1e-6, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,    0.0,    0.0,    0.0,     0.0,     0.0,     0.0,   0.0,   0.0,
+      0.0,  1e-6, 0.0,  0.0,  0.0,  0.0,  0.0,    0.0,    0.0,    0.0,     0.0,     0.0,     0.0,   0.0,   0.0,
+      0.0,  0.0,  1e-6, 0.0,  0.0,  0.0,  0.0,    0.0,    0.0,    0.0,     0.0,     0.0,     0.0,   0.0,   0.0,
+      # Roll, Pitch, Yaw
+      0.0,  0.0,  0.0,  1e-6, 0.0,  0.0,  0.0,    0.0,    0.0,    0.0,     0.0,     0.0,     0.0,   0.0,   0.0,
+      0.0,  0.0,  0.0,  0.0,  1e-6, 0.0,  0.0,    0.0,    0.0,    0.0,     0.0,     0.0,     0.0,   0.0,   0.0,
+      0.0,  0.0,  0.0,  0.0,  0.0,  1e-6, 0.0,    0.0,    0.0,    0.0,     0.0,     0.0,     0.0,   0.0,   0.0,
+      # Vx, Vy, Vz
+      0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  1e-3,   0.0,    0.0,    0.0,     0.0,     0.0,     0.0,   0.0,   0.0,
+      0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,    1e-3,   0.0,    0.0,     0.0,     0.0,     0.0,   0.0,   0.0,
+      0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,    0.0,    1e-3,   0.0,     0.0,     0.0,     0.0,   0.0,   0.0,
+      # Vroll, Vpitch, Vyaw (from gyro_noise_sigma^2)
+      0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,    0.0,    0.0,    0.0001,  0.0,     0.0,     0.0,   0.0,   0.0,
+      0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,    0.0,    0.0,    0.0,     0.0001,  0.0,     0.0,   0.0,   0.0,
+      0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,    0.0,    0.0,    0.0,     0.0,     0.0001,  0.0,   0.0,   0.0,
+      # Ax, Ay, Az (from accel_noise_sigma^2)
+      0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,    0.0,    0.0,    0.0,     0.0,     0.0,     0.01,  0.0,   0.0,
+      0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,    0.0,    0.0,    0.0,     0.0,     0.0,     0.0,   0.01,  0.0,
+      0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,    0.0,    0.0,    0.0,     0.0,     0.0,     0.0,   0.0,   0.01
+    ]
+
+    # Input 0: The output of the odom EKF.
+    odom0: odometry/local
+    odom0_config: [false, false, false, # X, Y, Z
+                   false, false, false, # Roll, Pitch, Yaw
+                   true,  true,  true,  # Vx, Vy, Vz
+                   true,  true,  true,  # Vroll, Vpitch, Vyaw
+                   false, false, false] # Ax, Ay, Az
+    odom0_queue_size: 10
+    odom0_differential: false # Irrelevant, fusing the velocity output of the first EKF.
+    odom0_relative: false
+
+    # Input 1: GPS data, converted to 'map' frame odometry by navsat_transform_node.
+    odom1: odometry/gps
+    odom1_config: [true,  true,  false, # X, Y, Z
+                   false, false, false, # Roll, Pitch, Yaw
+                   false, false, false, # Vx, Vy, Vz
+                   false, false, false, # Vroll, Vpitch, Vyaw
+                   false, false, false] # Ax, Ay, Az
+    odom1_queue_size: 2
+    odom1_differential: false
+    odom1_relative: false # Absolute GPS position in the map frame.
+
+    # Input 2: Depth sensor, providing absolute Z position (one of two?)
+    odom2: odometry/depth
+    odom2_config: [false, false, true,  # X, Y, Z
+                   false, false, false, # Roll, Pitch, Yaw
+                   false, false, false, # Vx, Vy, Vz
+                   false, false, false, # Vroll, Vpitch, Vyaw
+                   false, false, false] # Ax, Ay, Az
+    odom2_queue_size: 2
+    odom2_differential: false
+    odom2_relative: false # Absolute depth in the map frame.
+
+    # Input 3: Magnetometer heading sensor for absolute yaw.
+    imu0: imu/heading
+    imu0_config: [false, false, false, # X, Y, Z
+                  false, false, true,  # Roll, Pitch, Yaw
+                  false, false, false, # Vx, Vy, Vz
+                  false, false, false, # Vroll, Vpitch, Vyaw
+                  false, false, false] # Ax, Ay, Az
+    imu0_queue_size: 2
+    imu0_differential: false # It's an absolute heading source
+    imu0_relative: false # Absolute heading in the map frame.

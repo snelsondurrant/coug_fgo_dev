@@ -1,0 +1,85 @@
+imu_converter_node:
+  ros__parameters:
+    input_topic: "auv0/IMUSensor"
+    output_topic: "imu/data"
+    frame_id: "imu_link"
+
+    override_covariance: true # If true, ignore the covariance from Holoocean and use the sigmas below.
+    accel_noise_sigma: 0.1 # [m/s^2] Standard deviation of accelerometer measurements.
+    gyro_noise_sigma: 0.01 # [rad/s] Standard deviation of gyroscope measurements.
+
+gps_converter_node:
+  ros__parameters:
+    input_topic: "auv0/GPSSensor"
+    output_topic: "gps/fix"
+    frame_id: "base_link"
+
+    origin_latitude: 40.33940 # 40.23890
+    origin_longitude: -111.90721 # -111.74212
+    origin_altitude: 1412.0
+
+    override_covariance: true # If true, ignore the covariance from Holoocean and use the sigma below.
+    noise_sigma: 0.5 # [m] Standard deviation of GPS position measurements.
+
+depth_converter_node:
+  ros__parameters:
+    input_topic: "auv0/DepthSensor"
+    output_topic: "odometry/depth"
+    child_frame_id: "depth_link"
+
+    override_covariance: true # If true, ignore the covariance from Holoocean and use the sigma below.
+    noise_sigma: 0.1 # [m] Standard deviation of depth measurements.
+
+heading_converter_node:
+  ros__parameters:
+    input_topic: "auv0/DynamicsSensorIMU"
+    output_topic: "imu/heading"
+    frame_id: "modem_link"
+
+    override_covariance: true # If true, ignore the covariance from Holoocean and use the sigma below.
+    noise_sigma: 0.05 # [rad] Standard deviation of absolute heading measurements.
+
+dvl_converter_node:
+  ros__parameters:
+    input_topic: "auv0/DVLSensorVelocity"
+    output_topic: "dvl/data"
+    frame_id: "dvl_link"
+
+    override_covariance: true # If true, ignore the covariance from Holoocean and use the sigma below.
+    noise_sigma: 0.1 # [m/s] Standard deviation of DVL body-frame velocity measurements.
+
+location_converter_node:
+  ros__parameters:
+    input_topic: "auv0/LocationSensor"
+    imu_topic: "auv0/DynamicsSensorIMU"
+    output_topic: "odometry/truth"
+    child_frame_id: "base_link"
+
+fin_state_publisher_node:
+  ros__parameters:
+    input_topic: "auv0/ControlCommand"
+    output_topic: "joint_states"
+
+cmd_vel_converter_node:
+  ros__parameters:
+    input_topic: "cmd_vel"
+    output_topic: "command/control"
+    agent_command_topic: "command/agent"
+    agent_name: "auv0"
+
+    max_fin_angle_deg: 35.0
+
+hsd_commander_node:
+  ros__parameters:
+    waypoint_topic: "waypoints"
+    current_odom_topic: "odometry/global"
+    heading_topic: "heading"
+    speed_topic: "speed"
+    depth_topic: "depth"
+    agent_command_topic: "command/agent"
+    agent_name: "auv0"
+    
+    capture_radius: 25.0 # [m] Distance to waypoint to be considered "arrived".
+    slip_radius: 50.0 # [m] Distance to start "slipping" to the next waypoint (typically 2x capture_radius).
+    desired_speed_rpm: 1500.0 # [RPM] Constant thruster speed to command when moving.
+    odom_timeout_sec: 2.0 # [s] Time to wait for odometry before stopping.

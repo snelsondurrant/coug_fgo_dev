@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>coug_bringup</name>
+  <version>0.0.0</version>
+  <description>Full-system launch files for the CougUV</description>
+  <maintainer email="snelsondurrant@gmail.com">Nelson Durrant</maintainer>
+  <license>MIT</license>
+
+  <depend>coug_description</depend>
+  <depend>coug_localization</depend>
+  <depend>coug_gui</depend>
+  <depend>coug_fgo</depend>
+  <depend>holoocean_bridge</depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

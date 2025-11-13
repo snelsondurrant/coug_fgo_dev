@@ -1,0 +1,8 @@
+holoocean_node:
+  ros__parameters:
+    publish_commands: true
+    show_viewport: false
+    draw_arrow: false
+
+    relative_path: false
+    scenario_path: "/home/ue4/config/coug_openwater.json"

@@ -1,0 +1,14 @@
+**/build
+**/install
+**/log
+**/build_isolated
+**/install_isolated
+**/devel_isolated
+
+**/*.db3
+**/metadata.yaml
+
+__pycache__
+.vscode
+.DS_Store
+core

@@ -1,0 +1,6 @@
+
+Helpful tips:
+ - Check out this list of tmux commands: https://tmuxcheatsheet.com/.
+ - Use 'Ctrl+b d' to detach from the session (or 'Ctrl+d' to discard it).
+ - To copy text, hold 'Shift' while dragging with your mouse.
+

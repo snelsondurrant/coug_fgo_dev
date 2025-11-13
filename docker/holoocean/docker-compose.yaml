@@ -1,0 +1,28 @@
+# Created by Nelson Durrant, Nov 2025
+services: 
+ holoocean:
+    image: frostlab/holoocean:2.0-runtime-ubuntu22.04-cuda12.4-ros-patch
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: holoocean-ct
+    user: ue4
+    runtime: nvidia
+    network_mode: host
+    environment:
+      - DISPLAY=$DISPLAY # Required for GUI applications
+      - QT_X11_NO_MITSHM=1 # Required for GUI applications
+      - NVIDIA_DRIVER_CAPABILITIES=all # Required for GPU access
+      - NVIDIA_VISIBLE_DEVICES=all # Required for GPU access
+    volumes:
+      - ../../coug_ws/src/holoocean_bridge/config/holoocean:/home/ue4/config # HoloOcean config files
+      - ./entrypoint.sh:/startup/entrypoint.sh # Entrypoint script
+      - /dev:/dev:rw
+      - /etc/udev:/etc/udev:rw
+      - /dev/shm:/dev/shm # Required for inter-container communication
+      - /etc/localtime:/etc/localtime:ro # Syncs the container's time with the host
+      - /tmp/.X11-unix:/tmp/.X11-unix # Required for GUI applications
+    stdin_open: true
+    tty: true
+    restart: always
+    entrypoint: ["/startup/entrypoint.sh"]

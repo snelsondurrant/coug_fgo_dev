@@ -1,0 +1,27 @@
+# Created by Nelson Durrant, Nov 2024
+services:
+  cougars:
+    image: frostlab/cougars:fgo-dev
+    container_name: cougars-ct
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    user: frostlab-docker
+    network_mode: host
+    privileged: true
+    environment:
+      - DISPLAY=$DISPLAY # Required for GUI applications
+      - QT_X11_NO_MITSHM=1 # Required for GUI applications
+    volumes:
+      - ../coug_ws:/home/frostlab-docker/coug_ws # CoUGARs ROS2 workspace
+      - ../scripts:/home/frostlab-docker/scripts # Helpful scripts
+      - ./startup:/startup # Startup scripts
+      - /dev:/dev:rw
+      - /etc/udev:/etc/udev:rw
+      - /dev/shm:/dev/shm # Required for inter-container communication
+      - /etc/localtime:/etc/localtime:ro # Syncs the container's time with the host
+      - /tmp/.X11-unix:/tmp/.X11-unix # Required for GUI applications
+    stdin_open: true
+    tty: true
+    restart: always
+    entrypoint: ["/startup/entrypoint.sh"]

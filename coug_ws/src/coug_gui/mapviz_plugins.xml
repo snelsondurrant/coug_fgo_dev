@@ -1,0 +1,6 @@
+<library path="coug_gui">
+  <class name="coug_gui/coug_waypoints" type="coug_gui::CougWaypointsPlugin" base_class_type="mapviz::MapvizPlugin">
+    <description>Select and send CougUV waypoints</description>
+  </class>
+</library>
+

@@ -1,0 +1,72 @@
+{
+    "name": "bluerov2_openwater",
+    "package_name": "Ocean",
+    "world": "OpenWater",
+    "main_agent": "auv0",
+    "ticks_per_sec": 30,
+    "frames_per_sec": 60,
+    "agents": [
+        {
+        "agent_name": "auv0",
+        "agent_type": "BlueROV2",
+        "sensors": [
+            {
+                "sensor_type": "IMUSensor",
+                "socket": "IMUSocket",
+                "configuration":{
+                    "AccelSigma": 0.1,
+                    "AngVelSigma": 0.01,
+                    "AccelBiasSigma": 0.02,
+                    "AngVelBiasSigma": 0.001,
+                    "ReturnBias": true
+                },
+                "ros_publish": true
+            },
+            {
+                "sensor_type": "GPSSensor",
+                "tick_every": 30,
+                "socket": "COM",
+                "configuration":{
+                    "Sigma": 0.5,
+                    "Depth": 1.0,
+                    "DepthSigma": 0.05
+                },
+                "ros_publish": true
+            },
+            {
+                "sensor_type": "DepthSensor",
+                "socket": "DepthSocket",
+                "configuration":{
+                    "Sigma": 0.1
+                },
+                "ros_publish": true
+            },
+            {
+                "sensor_type": "DynamicsSensor",
+                "configuration": {
+                    "UseCOM": true,
+                    "UseRPY": false 
+                },
+                "ros_publish": true
+            },
+            {
+                "sensor_type": "DVLSensor",
+                "socket": "DVLSocket",
+                "configuration":{
+                    "VelSigma": 0.1,
+                    "DebugLines": true
+                },
+                "ros_publish": true
+            },
+            {
+                "sensor_type": "LocationSensor",
+                "socket": "COM",
+                "ros_publish": true
+            }
+        ],
+        "control_scheme": 0,
+        "location": [0,0,0],
+        "rotation": [0,0,0]
+        }
+    ]
+}
