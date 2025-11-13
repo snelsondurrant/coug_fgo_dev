@@ -4,6 +4,8 @@
 
 ### Get Started
 
+![ASCII Art](https://github.com/user-attachments/assets/18a7825f-216c-4df9-b4f3-7c91c4bf0153)
+
 > **NOTE:** Newer MacBooks that use ARM64 architecture (M1, M2, etc) have not been extensively tested.
 
 **Windows:**
