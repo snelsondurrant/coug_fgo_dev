@@ -46,8 +46,7 @@ case $1 in
 			# If not, create a new 'coug_dev' tmux session
 			printWarning "Creating a new 'coug_dev' tmux session..."
 			docker exec -it cougars-ct tmux new-session -d -s coug_dev -n main -c "~"
-			docker exec -it cougars-ct tmux send-keys -t coug_dev:main.0 "clear && cat /startup/introduction.txt" C-m
-
+			docker exec -it cougars-ct tmux send-keys -t coug_dev:main.0 "clear && cat /introduction.txt" C-m
 		fi
 		# Attach to the 'coug_dev' tmux session
 		docker exec -it cougars-ct tmux attach -t coug_dev

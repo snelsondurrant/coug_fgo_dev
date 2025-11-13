@@ -15,7 +15,9 @@ services:
     volumes:
       - ../coug_ws:/home/frostlab-docker/coug_ws # CoUGARs ROS2 workspace
       - ../scripts:/home/frostlab-docker/scripts # Helpful scripts
-      - ./startup:/startup # Startup scripts
+      - ./entrypoint.sh:/entrypoint.sh # Entrypoint script
+      - ./introduction.txt:/introduction.txt # Introduction text
+      - ./.tmux.conf:/home/frostlab-docker/.tmux.conf # Tmux configuration
       - /dev:/dev:rw
       - /etc/udev:/etc/udev:rw
       - /dev/shm:/dev/shm # Required for inter-container communication
@@ -24,4 +26,4 @@ services:
     stdin_open: true
     tty: true
     restart: always
-    entrypoint: ["/startup/entrypoint.sh"]
+    entrypoint: ["/entrypoint.sh"]

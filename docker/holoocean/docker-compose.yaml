@@ -16,7 +16,7 @@ services:
       - NVIDIA_VISIBLE_DEVICES=all # Required for GPU access
     volumes:
       - ../../coug_ws/src/holoocean_bridge/config/holoocean:/home/ue4/config # HoloOcean config files
-      - ./entrypoint.sh:/startup/entrypoint.sh # Entrypoint script
+      - ./entrypoint.sh:/entrypoint.sh # Entrypoint script
       - /dev:/dev:rw
       - /etc/udev:/etc/udev:rw
       - /dev/shm:/dev/shm # Required for inter-container communication
@@ -25,4 +25,4 @@ services:
     stdin_open: true
     tty: true
     restart: always
-    entrypoint: ["/startup/entrypoint.sh"]
+    entrypoint: ["/entrypoint.sh"]
