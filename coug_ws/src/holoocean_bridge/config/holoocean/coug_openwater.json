@@ -16,8 +16,8 @@
                 "configuration":{
                     "AccelSigma": 0.1,
                     "AngVelSigma": 0.01,
-                    "AccelBiasSigma": 0.02,
-                    "AngVelBiasSigma": 0.001,
+                    "AccelBiasSigma": 0,
+                    "AngVelBiasSigma": 0,
                     "ReturnBias": true
                 },
                 "ros_publish": true
