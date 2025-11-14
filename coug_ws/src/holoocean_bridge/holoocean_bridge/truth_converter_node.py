@@ -6,9 +6,9 @@ from sensor_msgs.msg import Imu
 import message_filters
 
 
-class LocationConverterNode(Node):
+class TruthConvertorNode(Node):
     """
-    Converts location data from HoloOcean to an Odometry message.
+    Converts ground truth data from HoloOcean to an Odometry message.
 
     :author: Nelson Durrant (w Gemini 2.5 Pro)
     :date: Nov 2025
@@ -21,7 +21,7 @@ class LocationConverterNode(Node):
     """
 
     def __init__(self):
-        super().__init__("location_converter_node")
+        super().__init__("truth_converter_node")
 
         self.declare_parameter("input_topic", "auv0/LocationSensor")
         self.declare_parameter("imu_topic", "auv0/DynamicsSensorIMU")
@@ -67,13 +67,13 @@ class LocationConverterNode(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    location_converter_node = LocationConverterNode()
+    truth_converter_node = TruthConvertorNode()
     try:
-        rclpy.spin(location_converter_node)
+        rclpy.spin(truth_converter_node)
     except KeyboardInterrupt:
         pass
     finally:
-        location_converter_node.destroy_node()
+        truth_converter_node.destroy_node()
         if rclpy.ok():
             rclpy.shutdown()
 

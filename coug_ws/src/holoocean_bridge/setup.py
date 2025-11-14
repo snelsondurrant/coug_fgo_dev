@@ -30,7 +30,7 @@ setup(
             'dvl_converter = holoocean_bridge.dvl_converter_node:main',
             'heading_converter = holoocean_bridge.heading_converter_node:main',
             'fin_state_publisher = holoocean_bridge.fin_state_publisher_node:main',
-            'location_converter = holoocean_bridge.location_converter_node:main',
+            'truth_converter = holoocean_bridge.truth_converter_node:main',
             'hsd_commander = holoocean_bridge.hsd_commander_node:main',
             'imu_converter = holoocean_bridge.imu_converter_node:main',
         ],

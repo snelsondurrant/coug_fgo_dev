@@ -64,8 +64,8 @@ def generate_launch_description():
             ),
             Node(
                 package="holoocean_bridge",
-                executable="location_converter",
-                name="location_converter_node",
+                executable="truth_converter",
+                name="truth_converter_node",
                 parameters=[params_file, {"use_sim_time": use_sim_time}],
                 output="screen",
             ),

@@ -48,7 +48,7 @@ dvl_converter_node:
     override_covariance: true # If true, ignore the covariance from Holoocean and use the sigma below.
     noise_sigma: 0.1 # [m/s] Standard deviation of DVL body-frame velocity measurements.
 
-location_converter_node:
+truth_converter_node:
   ros__parameters:
     input_topic: "auv0/LocationSensor"
     imu_topic: "auv0/DynamicsSensorIMU"
