@@ -11,6 +11,9 @@ class HsdCommanderNode(Node):
     """
     High-Level Mission Commander for HoloOcean.
 
+    IMPORTANT! This only works for the BlueROV2 when it starts at the origin (0,0,0) with no rotation.
+    Honestly tho, the BlueROV2 PID controller doesn't work so well anyway, so I'd just drive it or use the CougUV.
+
     :author: Nelson Durrant (w Gemini 2.5 Pro)
     :date: Nov 2025
 

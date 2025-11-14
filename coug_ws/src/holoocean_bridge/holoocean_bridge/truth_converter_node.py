@@ -10,6 +10,9 @@ class TruthConvertorNode(Node):
     """
     Converts ground truth data from HoloOcean to an Odometry message.
 
+    IMPORTANT! This is only in the map frame when the vehicle starts at the origin (0,0,0) 
+    with no rotation. Otherwise, the HoloOcean and map frames need to be aligned in post-processing.
+
     :author: Nelson Durrant (w Gemini 2.5 Pro)
     :date: Nov 2025
 
