@@ -4,35 +4,42 @@
 
 ### Get Started
 
-![ASCII Art](https://github.com/user-attachments/assets/18a7825f-216c-4df9-b4f3-7c91c4bf0153)
+> **NOTE:** Newer MacBooks with ARM64 CPU architecture (M1, M2, etc) have not been extensively tested.
 
-> **NOTE:** Newer MacBooks that use ARM64 architecture (M1, M2, etc) have not been extensively tested.
+- Install Docker and set up the Linux development environment.
 
-**Windows:**
+  **Windows:**
 
-- Install WSL2 on your Windows machine by following the instructions [here](https://docs.microsoft.com/en-us/windows/wsl/install).
+  - Install WSL2 on your Windows machine by following the instructions [here](https://docs.microsoft.com/en-us/windows/wsl/install).
 
-- Install Docker Desktop on your Windows machine by following the instructions [here](https://docs.docker.com/desktop/), and enable the WSL2 backend by following the instructions [here](https://docs.docker.com/desktop/windows/wsl/).
+  - Install Docker Desktop on your Windows machine by following the instructions [here](https://docs.docker.com/desktop/), and enable the WSL2 backend by following the instructions [here](https://docs.docker.com/desktop/windows/wsl/).
 
-- Open a new WSL2 terminal and clone the 'coug_fgo_dev' repo into your WSL2 environment using `git clone https://github.com/snelsondurrant/coug_fgo_dev.git`.
+  **Linux:**
 
-- Run `cd coug_fgo_dev && bash compose.sh` to build the Docker image and launch the container.
+  - Install Docker Engine on your Linux machine by following the instructions [here](https://docs.docker.com/engine/install/ubuntu/). Make sure to follow the post-installation steps to allow your user to run Docker commands without `sudo`.
 
-- Exit the container and follow the instructions [here](https://github.com/byu-holoocean/holoocean-ros/tree/main/docker/runtime) to set up 'holoocean-ros' in your WSL2 environment. When prompted to run `./build_container.sh`, specify the branch 'nelson/fgo-dev' using `./build_container.sh -b nelson/fgo-dev`.
+- Open a new terminal and clone the `coug_fgo_dev` repository.
 
-- When finished, launch HoloOcean outside of the container using `bash holoocean_launch.sh`. Open a new WSL2 terminal, enter the container using `bash compose.sh`, and run `cd ~/coug_ws && colcon build` followed by `cd ~/scripts && bash dev_launch.sh` to launch the localization nodes and development tools.
+  ```bash
+  git clone https://github.com/snelsondurrant/coug_fgo_dev.git
+  ```
 
-**Linux:**
+- Enter the repository and run `bash compose.sh` to build and launch the Docker container.
 
-- Install Docker Engine on your Linux machine by following the instructions [here](https://docs.docker.com/engine/install/ubuntu/). Make sure to follow the post-installation steps to allow your user to run Docker commands without `sudo`.
+  ```bash
+  cd coug_fgo_dev && bash compose.sh
+  ```
 
-- Open a new terminal and clone the 'coug_fgo_dev' repo into your Linux environment using `git clone https://github.com/snelsondurrant/coug_fgo_dev.git`.
+- Exit the container and follow the instructions [here](https://github.com/byu-holoocean/holoocean-ros/tree/main/docker/runtime) to build a Docker image for `holoocean-ros`. When prompted to run `./build_container.sh`, specify the branch 'nelson/fgo-dev' using `./build_container.sh -b nelson/fgo-dev`.
 
-- Run `cd coug_fgo_dev && bash compose.sh` to build the Docker image and launch the container.
+- When finished, launch HoloOcean outside of the container using `bash holoocean_launch.sh`.
 
-- Exit the container and follow the instructions [here](https://github.com/byu-holoocean/holoocean-ros/tree/main/docker/runtime) to set up 'holoocean-ros.' When prompted to run `./build_container.sh`, specify the branch 'nelson/fgo-dev' using `./build_container.sh -b nelson/fgo-dev`.
+- Open a new terminal, enter the container using `bash compose.sh`, build the `coug_ws` workspace, and launch the localization nodes and development tools using `dev_launch.sh`.
 
-- When finished, launch HoloOcean outside of the container using `bash holoocean_launch.sh`. Open a new terminal, enter the container using `bash compose.sh`, and run `cd ~/coug_ws && colcon build` followed by `cd ~/scripts && bash dev_launch.sh` to launch the localization nodes and development tools.
+  ```bash
+  cd ~/coug_ws && colcon build
+  cd ~/scripts && bash dev_launch.sh
+  ```
 
 --
 
