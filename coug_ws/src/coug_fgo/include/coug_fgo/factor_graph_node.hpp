@@ -116,18 +116,18 @@ private:
     std::mutex dvl_queue_mutex_;
 
     // --- Transformations ---
-    bool have_variable_to_base_tf_ = false;
-    bool have_imu_to_variable_tf_ = false;
-    bool have_gps_to_variable_tf_ = false;
-    bool have_depth_to_variable_tf_ = false;
-    bool have_heading_to_variable_tf_ = false;
-    bool have_dvl_to_variable_tf_ = false;
-    geometry_msgs::msg::TransformStamped variable_to_base_tf_;
-    geometry_msgs::msg::TransformStamped imu_to_variable_tf_;
-    geometry_msgs::msg::TransformStamped gps_to_variable_tf_;
-    geometry_msgs::msg::TransformStamped depth_to_variable_tf_;
-    geometry_msgs::msg::TransformStamped heading_to_variable_tf_;
-    geometry_msgs::msg::TransformStamped dvl_to_variable_tf_;
+    bool have_state_to_base_tf_ = false;
+    bool have_imu_to_state_tf_ = false;
+    bool have_gps_to_state_tf_ = false;
+    bool have_depth_to_state_tf_ = false;
+    bool have_heading_to_state_tf_ = false;
+    bool have_dvl_to_state_tf_ = false;
+    geometry_msgs::msg::TransformStamped state_to_base_tf_;
+    geometry_msgs::msg::TransformStamped imu_to_state_tf_;
+    geometry_msgs::msg::TransformStamped gps_to_state_tf_;
+    geometry_msgs::msg::TransformStamped depth_to_state_tf_;
+    geometry_msgs::msg::TransformStamped heading_to_state_tf_;
+    geometry_msgs::msg::TransformStamped dvl_to_state_tf_;
 
     // --- ROS Interfaces ---
     rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr global_odom_pub_;
@@ -158,7 +158,7 @@ private:
     std::string imu_topic_, gps_odom_topic_, depth_odom_topic_, heading_topic_, dvl_topic_;
     std::string global_odom_topic_, smoothed_path_topic_;
     std::string velocity_topic_, imu_bias_topic_;
-    std::string map_frame_, odom_frame_, base_frame_, variable_frame_;
+    std::string map_frame_, odom_frame_, base_frame_, state_frame_;
     int imu_queue_size_, gps_queue_size_, depth_queue_size_, heading_queue_size_, dvl_queue_size_;
 
     // Sensor Settings

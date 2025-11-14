@@ -4,7 +4,7 @@ factor_graph_node:
     factor_graph_update_rate: 10.0 # [Hz] How often to run the smoother update.
     publish_global_tf: true # Publish the map -> odom transform.
     publish_smoothed_path: true # Publish the full smoothed path for visualization.
-    publish_velocity: true # Publish the estimated velocity (of variable frame in map frame).
+    publish_velocity: true # Publish the estimated velocity (of state frame in map frame).
     publish_imu_bias: true # Publish the estimated IMU biases (accel + gyro).
 
     # --- GTSAM Smoother Settings ---
@@ -28,9 +28,9 @@ factor_graph_node:
     map_frame: "map" # Global, non-drifting world frame
     odom_frame: "odom" # Drifting, continuous local frame
     base_frame: "base_link" # AUV's main frame
-    # IMPORTANT! Setting the variable frame to match the DVL frame allows us to skip
+    # IMPORTANT! Setting the state frame to match the DVL frame allows us to skip
     # interpolation of IMU data when adding DVL factors, improving both speed and accuracy.
-    variable_frame: "dvl_link" # Frame in which variable nodes are defined
+    state_frame: "dvl_link" # Frame in which variable nodes are defined
 
     subscriber_queue_sizes:
       imu: 200
