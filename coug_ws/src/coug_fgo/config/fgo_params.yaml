@@ -5,7 +5,7 @@ factor_graph_node:
     publish_global_tf: true # Publish the map -> odom transform.
     publish_smoothed_path: true # Publish the full smoothed path for visualization.
     publish_velocity: true # Publish the estimated velocity (of state frame in map frame).
-    publish_imu_bias: true # Publish the estimated IMU biases (accel + gyro in the state frame).
+    publish_imu_bias: true # Publish the estimated IMU biases (accel + gyro).
 
     # --- GTSAM Smoother Settings ---
     smoother_lag: 30.0 # The time window (in seconds) of past states to smooth over.
