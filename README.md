@@ -34,7 +34,7 @@
 
 - When finished, launch HoloOcean outside of the container using `bash holoocean_launch.sh`.
 
-- Open a new terminal, enter the container using `bash compose.sh`, build the `coug_ws` workspace, and launch the localization nodes and development tools using `dev_launch.sh`.
+- Open a new terminal, enter the container using `bash compose.sh`, build the `coug_ws` workspace, and launch the localization nodes and development tools using `bash dev_launch.sh`.
 
   ```bash
   cd ~/coug_ws && colcon build
