@@ -19,6 +19,8 @@
  * Publishers:
  * - odometry/global (nav_msgs/msg/Odometry)
  * - smoothed_path (nav_msgs/msg/Path)
+ * - odometry/velocity (geometry_msgs/msg/TwistWithCovarianceStamped)
+ * - odometry/imu_bias (geometry_msgs/msg/TwistWithCovarianceStamped)
  * - 'map' -> 'odom' transform
  */
 
@@ -43,6 +45,8 @@ void FactorGraphNode::logLoadedParameters()
     RCLCPP_INFO(get_logger(), "[Node] Factor Graph Update Rate: %.2f Hz", factor_graph_update_rate_);
     RCLCPP_INFO(get_logger(), "[Node] Publish Global TF: %s", publish_global_tf_ ? "true" : "false");
     RCLCPP_INFO(get_logger(), "[Node] Publish Smoothed Path: %s", publish_smoothed_path_ ? "true" : "false");
+    RCLCPP_INFO(get_logger(), "[Node] Publish Velocity: %s", publish_velocity_ ? "true" : "false");
+    RCLCPP_INFO(get_logger(), "[Node] Publish IMU Bias: %s", publish_imu_bias_ ? "true" : "false");
 
     RCLCPP_INFO(get_logger(), "[GTSAM] Smoother Lag: %.2f s", smoother_lag_);
     RCLCPP_INFO(get_logger(), "[GTSAM] Relinearize Threshold: %.2f", gtsam_relinearize_threshold_);
@@ -55,6 +59,8 @@ void FactorGraphNode::logLoadedParameters()
     RCLCPP_INFO(get_logger(), "[ROS] DVL Topic: %s", dvl_topic_.c_str());
     RCLCPP_INFO(get_logger(), "[ROS] Global Odom Topic: %s", global_odom_topic_.c_str());
     RCLCPP_INFO(get_logger(), "[ROS] Smoothed Path Topic: %s", smoothed_path_topic_.c_str());
+    RCLCPP_INFO(get_logger(), "[ROS] Velocity Topic: %s", velocity_topic_.c_str());
+    RCLCPP_INFO(get_logger(), "[ROS] IMU Bias Topic: %s", imu_bias_topic_.c_str());
     RCLCPP_INFO(get_logger(), "[ROS] Map Frame: %s", map_frame_.c_str());
     RCLCPP_INFO(get_logger(), "[ROS] Odom Frame: %s", odom_frame_.c_str());
     RCLCPP_INFO(get_logger(), "[ROS] Base Frame: %s", base_frame_.c_str());
@@ -107,6 +113,8 @@ void FactorGraphNode::loadParameters()
     factor_graph_update_rate_ = declare_parameter<double>("factor_graph_update_rate", 10.0);
     publish_global_tf_ = declare_parameter<bool>("publish_global_tf", true);
     publish_smoothed_path_ = declare_parameter<bool>("publish_smoothed_path", true);
+    publish_velocity_ = declare_parameter<bool>("publish_velocity", false);
+    publish_imu_bias_ = declare_parameter<bool>("publish_imu_bias", false);
 
     // --- GTSAM Settings ---
     smoother_lag_ = declare_parameter<double>("smoother_lag", 30.0);
@@ -121,6 +129,8 @@ void FactorGraphNode::loadParameters()
     dvl_topic_ = declare_parameter<std::string>("dvl_topic", "dvl/data");
     global_odom_topic_ = declare_parameter<std::string>("global_odom_topic", "odometry/global");
     smoothed_path_topic_ = declare_parameter<std::string>("smoothed_path_topic", "smoothed_path");
+    velocity_topic_ = declare_parameter<std::string>("velocity_topic", "~/velocity");
+    imu_bias_topic_ = declare_parameter<std::string>("imu_bias_topic", "~/imu_bias");
     map_frame_ = declare_parameter<std::string>("map_frame", "map");
     odom_frame_ = declare_parameter<std::string>("odom_frame", "odom");
     base_frame_ = declare_parameter<std::string>("base_frame", "base_link");
@@ -181,6 +191,8 @@ void FactorGraphNode::setupRosInterfaces()
     // --- ROS Publishers ---
     global_odom_pub_ = create_publisher<nav_msgs::msg::Odometry>(global_odom_topic_, 10);
     smoothed_path_pub_ = create_publisher<nav_msgs::msg::Path>(smoothed_path_topic_, 10);
+    velocity_pub_ = create_publisher<geometry_msgs::msg::TwistWithCovarianceStamped>(velocity_topic_, 10);
+    imu_bias_pub_ = create_publisher<geometry_msgs::msg::TwistWithCovarianceStamped>(imu_bias_topic_, 10);
 
     // --- ROS Callback Groups ---
     sensor_cb_group_ = create_callback_group(
@@ -896,6 +908,58 @@ void FactorGraphNode::publishGlobalOdom(const gtsam::Pose3 &current_pose,
     global_odom_pub_->publish(odom_msg);
 }
 
+void FactorGraphNode::publishVelocity(const gtsam::Vector3 &current_vel_in_map,
+                                      const gtsam::Matrix &vel_covariance)
+{
+    geometry_msgs::msg::TwistWithCovarianceStamped vel_msg;
+    vel_msg.header.stamp = get_clock()->now();
+    // Velocity of the 'variable_frame_' expressed in 'map_frame_'.
+    vel_msg.header.frame_id = map_frame_;
+    vel_msg.twist.twist.linear = toVectorMsg(current_vel_in_map);
+
+    for (int i = 0; i < 3; ++i)
+    {
+        for (int j = 0; j < 3; ++j)
+        {
+            vel_msg.twist.covariance[i * 6 + j] = vel_covariance(i, j);
+        }
+    }
+    for (int i = 3; i < 6; ++i)
+    {
+        for (int j = 3; j < 6; ++j)
+        {
+            vel_msg.twist.covariance[i * 6 + j] = (i == j) ? 1e-9 : 0.0;
+        }
+    }
+    velocity_pub_->publish(vel_msg);
+}
+
+void FactorGraphNode::publishImuBias(const gtsam::imuBias::ConstantBias &current_bias,
+                                     const gtsam::Matrix &bias_covariance)
+{
+    geometry_msgs::msg::TwistWithCovarianceStamped bias_msg;
+    bias_msg.header.stamp = get_clock()->now();
+    bias_msg.header.frame_id = variable_frame_;
+
+    // Use 'linear' for accelerometer bias and 'angular' for gyroscope bias
+    bias_msg.twist.twist.linear = toVectorMsg(current_bias.accelerometer());
+    bias_msg.twist.twist.angular = toVectorMsg(current_bias.gyroscope());
+
+    // GTSAM bias covariance is [ accel_3x3 | ... ]
+    //                          [ ...       | gyro_3x3  ]
+    // ROS twist covariance is  [ linear_3x3 | ... ]
+    //                          [ ...        | angular_3x3 ]
+    for (int i = 0; i < 6; ++i)
+    {
+        for (int j = 0; j < 6; ++j)
+        {
+            bias_msg.twist.covariance[i * 6 + j] = bias_covariance(i, j);
+        }
+    }
+
+    imu_bias_pub_->publish(bias_msg);
+}
+
 void FactorGraphNode::broadcastGlobalTf(const gtsam::Pose3 &current_pose)
 {
     try
@@ -1179,7 +1243,7 @@ void FactorGraphNode::factorGraphTimerCallback()
     new_timestamps[B(current_step_)] = last_imu_time;
 
     gtsam::Values smoothed_results_for_path;
-    gtsam::Matrix new_pose_cov, new_vel_cov;
+    gtsam::Matrix new_pose_cov, new_vel_cov, new_bias_cov;
     try
     {
         // O(K^c) for some c > 1
@@ -1190,6 +1254,7 @@ void FactorGraphNode::factorGraphTimerCallback()
         gtsam::imuBias::ConstantBias new_bias = smoother_->calculateEstimate<gtsam::imuBias::ConstantBias>(B(current_step_));
         new_pose_cov = smoother_->marginalCovariance(X(current_step_));
         new_vel_cov = smoother_->marginalCovariance(V(current_step_));
+        new_bias_cov = smoother_->marginalCovariance(B(current_step_));
         if (publish_smoothed_path_)
         {
             // O(K)
@@ -1225,6 +1290,18 @@ void FactorGraphNode::factorGraphTimerCallback()
     gtsam::Pose3 T_base_variable = toGtsam(variable_to_base_tf_.transform);
     gtsam::Pose3 transformed_prev_pose = prev_pose_ * T_base_variable.inverse();
     publishGlobalOdom(transformed_prev_pose, prev_vel_, new_pose_cov, new_vel_cov);
+
+    // --- Publish Velocity ---
+    if (publish_velocity_)
+    {
+        publishVelocity(prev_vel_, new_vel_cov);
+    }
+
+    // --- Publish IMU Bias ---
+    if (publish_imu_bias_)
+    {
+        publishImuBias(prev_bias_, new_bias_cov);
+    }
 
     // --- Broadcast Global TF ---
     if (publish_global_tf_)

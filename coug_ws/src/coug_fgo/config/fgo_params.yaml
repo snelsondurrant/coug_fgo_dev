@@ -4,6 +4,8 @@ factor_graph_node:
     factor_graph_update_rate: 10.0 # [Hz] How often to run the smoother update.
     publish_global_tf: true # Publish the map -> odom transform.
     publish_smoothed_path: true # Publish the full smoothed path for visualization.
+    publish_velocity: true # Publish the estimated velocity (of variable frame in map frame).
+    publish_imu_bias: true # Publish the estimated IMU biases (accel + gyro).
 
     # --- GTSAM Smoother Settings ---
     smoother_lag: 30.0 # The time window (in seconds) of past states to smooth over.
@@ -18,6 +20,10 @@ factor_graph_node:
     dvl_topic: "dvl/data"
     global_odom_topic: "odometry/global"
     smoothed_path_topic: "smoothed_path"
+    velocity_topic: "~/velocity"
+    # Topic for the IMU bias. Published as a TwistWithCovarianceStamped,
+    # where 'linear' holds accelerometer bias and 'angular' holds gyroscope bias.
+    imu_bias_topic: "~/imu_bias"
 
     map_frame: "map" # Global, non-drifting world frame
     odom_frame: "odom" # Drifting, continuous local frame

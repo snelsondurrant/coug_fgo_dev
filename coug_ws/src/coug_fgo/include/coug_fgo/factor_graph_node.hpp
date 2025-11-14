@@ -77,6 +77,10 @@ private:
     void publishGlobalOdom(const gtsam::Pose3 &current_pose, const gtsam::Vector3 &current_velocity,
                            const gtsam::Matrix &pose_covariance, const gtsam::Matrix &vel_covariance);
     void broadcastGlobalTf(const gtsam::Pose3 &current_pose);
+    void publishVelocity(const gtsam::Vector3 &current_vel_in_map,
+                         const gtsam::Matrix &vel_covariance);
+    void publishImuBias(const gtsam::imuBias::ConstantBias &current_bias,
+                        const gtsam::Matrix &bias_covariance);
 
     // --- System State ---
     bool system_initialized_ = false;
@@ -128,6 +132,8 @@ private:
     // --- ROS Interfaces ---
     rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr global_odom_pub_;
     rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr smoothed_path_pub_;
+    rclcpp::Publisher<geometry_msgs::msg::TwistWithCovarianceStamped>::SharedPtr velocity_pub_;
+    rclcpp::Publisher<geometry_msgs::msg::TwistWithCovarianceStamped>::SharedPtr imu_bias_pub_;
     rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr imu_sub_;
     rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr gps_odom_sub_;
     rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr depth_odom_sub_;
@@ -142,6 +148,7 @@ private:
     // Node Settings
     double factor_graph_update_rate_;
     bool publish_global_tf_, publish_smoothed_path_;
+    bool publish_velocity_, publish_imu_bias_;
 
     // GTSAM Settings
     double smoother_lag_, gtsam_relinearize_threshold_;
@@ -150,6 +157,7 @@ private:
     // Topics, Frames, and Queues
     std::string imu_topic_, gps_odom_topic_, depth_odom_topic_, heading_topic_, dvl_topic_;
     std::string global_odom_topic_, smoothed_path_topic_;
+    std::string velocity_topic_, imu_bias_topic_;
     std::string map_frame_, odom_frame_, base_frame_, variable_frame_;
     int imu_queue_size_, gps_queue_size_, depth_queue_size_, heading_queue_size_, dvl_queue_size_;
 
