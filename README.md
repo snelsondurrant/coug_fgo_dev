@@ -30,7 +30,7 @@
   cd coug_fgo_dev && bash compose.sh
   ```
 
-- Exit the container and follow the instructions [here](https://github.com/byu-holoocean/holoocean-ros/tree/main/docker/runtime) to build a Docker image for `holoocean-ros`. When prompted to run `./build_container.sh`, specify the branch 'nelson/fgo-dev' using `./build_container.sh -b nelson/fgo-dev`.
+- Exit the container and follow the instructions [here](https://github.com/byu-holoocean/holoocean-ros/tree/main/docker/runtime) to build a runtime Docker image for `holoocean-ros`. When prompted to run `./build_container.sh`, specify the branch `nelson/fgo-dev` using `./build_container.sh -b nelson/fgo-dev`.
 
 - When finished, launch HoloOcean outside of the container using `bash holoocean_launch.sh`.
 
