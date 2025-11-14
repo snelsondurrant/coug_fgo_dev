@@ -14,6 +14,8 @@ ros2 bag record \
   /odometry/global \
   /odometry/global_ekf \
   /odometry/global_ukf \
+  /factor_graph_node/velocity \
+  /factor_graph_node/imu_bias \
   /imu/data \
   /gps/fix \
   /odometry/depth \
